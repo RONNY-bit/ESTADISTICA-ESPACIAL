@@ -1,0 +1,345 @@
+---
+title: "ENA 2014–2024 – Análisis de Siembra por Departamento"
+author: "RONNY"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width  = 12,
+  fig.height = 8,
+  dpi = 150
+)
+```
+
+```{r librerias}
+library(haven)
+library(dplyr)
+library(sf)
+library(ggplot2)
+library(geodata)
+library(scales)
+library(stringr)
+library(forcats)
+```
+
+---
+
+# Carga y limpieza de datos
+
+```{r datos}
+datos <- read_sav(
+  "C:/Users/DIGITAL HOUSE/Downloads/ENA_2014_2024/ENA_2014_2024.sav",
+  encoding  = "latin1",
+  col_select = c("NOMBREDD", "P1216B", "P1216C_NOM", "P1216C_TIPO", "P1216E_MES")
+)
+
+# Estandarizar nombres de departamentos a MAYÚSCULAS
+datos <- datos %>%
+  filter(!is.na(NOMBREDD)) %>%
+  mutate(NOMBREDD = str_to_upper(str_trim(as.character(NOMBREDD))))
+
+glimpse(datos)
+```
+
+```{r mapa_base}
+# Descargar mapa oficial de Perú (nivel departamental)
+peru_dep <- geodata::gadm(country = "PER", level = 1, path = tempdir()) %>%
+  st_as_sf() %>%
+  mutate(NAME_1 = str_to_upper(str_trim(NAME_1)))
+```
+
+---
+
+# ¿Sembrará cultivos? (P1216B)
+
+```{r mapa_siembra}
+datos_1201 <- datos %>%
+  mutate(
+    siembra = case_when(
+      as.numeric(P1216B) == 1 ~ "Sí sembrará",
+      as.numeric(P1216B) == 2 ~ "No sembrará",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(siembra))
+
+# Calcular PORCENTAJES por departamento
+prop_siembra <- datos_1201 %>%
+  group_by(NOMBREDD, siembra) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(NOMBREDD) %>%
+  mutate(
+    total_dep = sum(n),
+    pct       = n / total_dep * 100
+  ) %>%
+  ungroup()
+
+# Solo "Sí sembrará" para el mapa principal
+si_siembra <- prop_siembra %>%
+  filter(siembra == "Sí sembrará")
+
+mapa_siembra <- peru_dep %>%
+  left_join(si_siembra, by = c("NAME_1" = "NOMBREDD"))
+
+ggplot(mapa_siembra) +
+  geom_sf(aes(fill = pct), color = "white", linewidth = 0.4) +
+  scale_fill_gradientn(
+    colours  = c("#fff7bc", "#fec44f", "#d95f0e", "#8c2d04"),
+    na.value = "grey85",
+    name     = "% que\nsembrará",
+    labels   = label_number(suffix = "%", accuracy = 1),
+    limits   = c(0, 100)
+  ) +
+  geom_sf_text(
+    aes(label = ifelse(!is.na(pct), paste0(round(pct, 0), "%"), "")),
+    size = 2.4, color = "black", fontface = "bold"
+  ) +
+  theme_void(base_size = 13) +
+  theme(
+    plot.title    = element_text(face = "bold", size = 15, hjust = 0.5, margin = margin(b = 6)),
+    plot.subtitle = element_text(size = 11, hjust = 0.5, color = "grey40", margin = margin(b = 10)),
+    legend.position   = "right",
+    legend.key.height = unit(1.5, "cm"),
+    plot.background   = element_rect(fill = "white", color = NA)
+  ) +
+  labs(
+    title    = "Productores que planean sembrar cultivos",
+    subtitle = "Porcentaje por departamento – ENA 2014–2024",
+    caption  = "Fuente: ENA 2014–2024  |  Pregunta P1216B"
+  )
+```
+```{r}
+# Tipo de cultivo a sembrar (P1216C_TIPO)
+# Categorías: 1=Transitorio, 2=Permanente cosecha estacional,
+#             3=Permanente cosecha continua, 4=Forestal
+
+tipo_cultivo <- datos %>%
+  filter(!is.na(P1216C_TIPO)) %>%
+  mutate(
+    tipo = case_when(
+      as.numeric(P1216C_TIPO) == 1 ~ "Transitorio",
+      as.numeric(P1216C_TIPO) == 2 ~ "Permanente estacional",
+      as.numeric(P1216C_TIPO) == 3 ~ "Permanente continua",
+      as.numeric(P1216C_TIPO) == 4 ~ "Forestal",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(tipo))
+
+# ── Mapa: tipo predominante por departamento ────────────────────────────────
+top_tipo <- tipo_cultivo %>%
+  group_by(NOMBREDD, tipo) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(NOMBREDD) %>%
+  slice_max(n, n = 1, with_ties = FALSE) %>%
+  ungroup()
+
+mapa_tipo <- peru_dep %>%
+  left_join(top_tipo, by = c("NAME_1" = "NOMBREDD"))
+
+paleta_tipo <- c(
+  "Transitorio"          = "#f0a500",
+  "Permanente estacional"= "#2e8b57",
+  "Permanente continua"  = "#1a6496",
+  "Forestal"             = "#6b3fa0"
+)
+
+ggplot(mapa_tipo) +
+  geom_sf(aes(fill = tipo), color = "white", linewidth = 0.4) +
+  scale_fill_manual(
+    values   = paleta_tipo,
+    na.value = "grey85",
+    name     = "Tipo de cultivo\npredominante"
+  ) +
+  geom_sf_text(
+    aes(label = ifelse(!is.na(tipo), tipo, "")),
+    size = 1.9, color = "black",
+    check_overlap = TRUE
+  ) +
+  theme_void(base_size = 13) +
+  theme(
+    plot.title      = element_text(face = "bold", size = 15, hjust = 0.5, margin = margin(b = 6)),
+    plot.subtitle   = element_text(size = 11, hjust = 0.5, color = "grey40", margin = margin(b = 10)),
+    legend.position = "right",
+    legend.text     = element_text(size = 9),
+    plot.background = element_rect(fill = "white", color = NA)
+  ) +
+  labs(
+    title    = "Tipo de cultivo predominante por departamento",
+    subtitle = "Cultivo con mayor frecuencia de siembra – ENA 2014–2024",
+    caption  = "Fuente: ENA 2014–2024  |  Pregunta P1216C_TIPO"
+  )
+
+# ── Gráfico de barras: distribución de tipos por departamento ───────────────
+prop_tipo <- tipo_cultivo %>%
+  group_by(NOMBREDD, tipo) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(NOMBREDD) %>%
+  mutate(
+    total_dep = sum(n),
+    pct       = n / total_dep * 100
+  ) %>%
+  ungroup() %>%
+  mutate(NOMBREDD = fct_reorder(NOMBREDD, pct, .fun = max))
+
+ggplot(prop_tipo, aes(x = pct, y = NOMBREDD, fill = tipo)) +
+  geom_col(position = "stack", width = 0.75) +
+  scale_fill_manual(values = paleta_tipo, name = "Tipo de cultivo") +
+  scale_x_continuous(labels = label_number(suffix = "%", accuracy = 1)) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title      = element_text(face = "bold", size = 14, hjust = 0),
+    legend.position = "bottom",
+    panel.grid.major.y = element_blank(),
+    plot.background = element_rect(fill = "white", color = NA)
+  ) +
+  labs(
+    title   = "Distribución del tipo de cultivo por departamento",
+    subtitle = "ENA 2014–2024 – Pregunta P1216C_TIPO",
+    x = "Porcentaje (%)", y = NULL,
+    caption = "Fuente: ENA 2014–2024"
+  )
+
+# ── Mapa facetado: % de cada tipo por departamento ─────────────────────────
+mapa_tipo_facet <- peru_dep %>%
+  left_join(prop_tipo, by = c("NAME_1" = "NOMBREDD"))
+
+ggplot(mapa_tipo_facet) +
+  geom_sf(aes(fill = pct), color = "white", linewidth = 0.25) +
+  facet_wrap(~tipo, ncol = 2) +
+  scale_fill_gradientn(
+    colours  = c("#f7fbff", "#6baed6", "#2171b5", "#08306b"),
+    na.value = "grey85",
+    name     = "% del dpto.",
+    labels   = label_number(suffix = "%", accuracy = 1)
+  ) +
+  theme_void(base_size = 11) +
+  theme(
+    plot.title      = element_text(face = "bold", size = 14, hjust = 0.5, margin = margin(b = 6)),
+    plot.subtitle   = element_text(size = 10, hjust = 0.5, color = "grey40", margin = margin(b = 8)),
+    strip.text      = element_text(face = "bold", size = 10, margin = margin(b = 3)),
+    legend.position = "bottom",
+    legend.key.width  = unit(2, "cm"),
+    legend.key.height = unit(0.4, "cm"),
+    plot.background = element_rect(fill = "white", color = NA)
+  ) +
+  labs(
+    title    = "Concentración de cada tipo de cultivo por departamento",
+    subtitle = "% dentro del departamento – ENA 2014–2024",
+    caption  = "Fuente: ENA 2014–2024  |  Pregunta P1216C_TIPO"
+  )
+```
+
+---
+
+# Cultivo predominante por departamento (P1216C_NOM)
+
+```{r mapa_cultivo}
+top_cultivos <- datos %>%
+  filter(!is.na(P1216C_NOM), P1216C_NOM != "") %>%
+  mutate(cultivo = str_to_title(str_trim(as.character(P1216C_NOM)))) %>%
+  group_by(NOMBREDD, cultivo) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(NOMBREDD) %>%
+  slice_max(n, n = 1, with_ties = FALSE) %>%
+  ungroup()
+
+mapa_cultivo <- peru_dep %>%
+  left_join(top_cultivos, by = c("NAME_1" = "NOMBREDD"))
+
+# Paleta con suficientes colores para todos los cultivos
+n_cultivos <- n_distinct(mapa_cultivo$cultivo, na.rm = TRUE)
+paleta     <- colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(n_cultivos)
+
+ggplot(mapa_cultivo) +
+  geom_sf(aes(fill = cultivo), color = "white", linewidth = 0.4) +
+  scale_fill_manual(
+    values   = paleta,
+    na.value = "grey85",
+    name     = "Cultivo\npredominante"
+  ) +
+  geom_sf_text(
+    aes(label = ifelse(!is.na(cultivo), cultivo, "")),
+    size = 2, color = "black",
+    check_overlap = TRUE
+  ) +
+  theme_void(base_size = 13) +
+  theme(
+    plot.title      = element_text(face = "bold", size = 15, hjust = 0.5, margin = margin(b = 6)),
+    plot.subtitle   = element_text(size = 11, hjust = 0.5, color = "grey40", margin = margin(b = 10)),
+    legend.position = "right",
+    legend.text     = element_text(size = 9),
+    plot.background = element_rect(fill = "white", color = NA)
+  ) +
+  labs(
+    title    = "Cultivo predominante por departamento",
+    subtitle = "Cultivo con mayor frecuencia de siembra – ENA 2014–2024",
+    caption  = "Fuente: ENA 2014–2024  |  Pregunta P1216C"
+  )
+```
+
+---
+
+# Mes de siembra por región (P1216E_MES)
+
+```{r mapa_mes, fig.height=14}
+meses_lab <- c(
+  "1"  = "Enero",   "2"  = "Febrero",  "3"  = "Marzo",
+  "4"  = "Abril",   "5"  = "Mayo",     "6"  = "Junio",
+  "7"  = "Julio",   "8"  = "Agosto",   "9"  = "Setiembre",
+  "10" = "Octubre", "11" = "Noviembre","12" = "Diciembre"
+)
+
+mes_dep <- datos %>%
+  filter(!is.na(P1216E_MES), as.numeric(P1216E_MES) %in% 1:12) %>%
+  mutate(mes_num = as.numeric(P1216E_MES),
+         mes_lab = factor(meses_lab[as.character(mes_num)],
+                          levels = meses_lab)) %>%
+  group_by(NOMBREDD, mes_lab) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  # Porcentaje dentro del mes (para comparar entre departamentos)
+  group_by(mes_lab) %>%
+  mutate(
+    total_mes = sum(n),
+    pct       = n / total_mes * 100
+  ) %>%
+  ungroup()
+
+mapa_mes <- peru_dep %>%
+  left_join(mes_dep, by = c("NAME_1" = "NOMBREDD"))
+
+ggplot(mapa_mes) +
+  geom_sf(aes(fill = pct), color = "white", linewidth = 0.25) +
+  facet_wrap(~mes_lab, ncol = 3) +
+  scale_fill_gradientn(
+    colours  = c("#f0f9ff", "#4ea8de", "#1a6496", "#0a2540"),
+    na.value = "grey85",
+    name     = "% del mes\nnacional",
+    labels   = label_number(suffix = "%", accuracy = 0.1)
+  ) +
+  theme_void(base_size = 11) +
+  theme(
+    plot.title      = element_text(face = "bold", size = 15, hjust = 0.5, margin = margin(b = 6)),
+    plot.subtitle   = element_text(size = 11, hjust = 0.5, color = "grey40", margin = margin(b = 10)),
+    strip.text      = element_text(face = "bold", size = 10, margin = margin(b = 3)),
+    legend.position = "bottom",
+    legend.key.width  = unit(2, "cm"),
+    legend.key.height = unit(0.4, "cm"),
+    plot.background = element_rect(fill = "white", color = NA)
+  ) +
+  labs(
+    title    = "Concentración de siembra por mes y departamento",
+    subtitle = "% que representa cada departamento dentro del total nacional de ese mes – ENA 2014–2024",
+    caption  = "Fuente: ENA 2014–2024  |  Pregunta P1216E_MES\nCada panel usa la misma escala, permitiendo comparar la concentración entre meses."
+  )
+```
