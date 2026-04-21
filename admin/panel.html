@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Admin — CRQC Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,600;0,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-logo"><span>[</span>CRQC<span>]</span> Admin</div>
+    <p class="sidebar-label">Navegación</p>
+    <ul class="sidebar-nav">
+      <li><a href="#dashboard" class="active" onclick="showView('dashboard',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a></li>
+      <li><a href="#new-task" onclick="showView('new-task',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Nuevo Trabajo
+      </a></li>
+      <li><a href="#manage" onclick="showView('manage',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Gestionar Trabajos
+      </a></li>
+      <li><a href="#units" onclick="showView('units',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Gestionar Unidades
+      </a></li>
+      <li><a href="#settings" onclick="showView('settings',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Configuración
+      </a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <strong>admin</strong>
+        Administrador
+      </div>
+      <a href="#" class="sidebar-logout" onclick="logout()">Salir</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+
+    <!-- ===== DASHBOARD ===== -->
+    <section id="view-dashboard" class="view-section">
+      <div class="admin-topbar">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub">Bienvenido al panel de administración</div>
+        </div>
+        <div class="topbar-actions">
+          <a href="../index.html" target="_blank" class="btn-secondary" style="text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Ver Portafolio
+          </a>
+        </div>
+      </div>
+
+      <div class="stats-grid" id="stats-grid"></div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">Acciones rápidas</div>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+          <button class="btn-submit" onclick="showView('new-task', document.querySelector('[onclick*=new-task]'))">
+            + Agregar Trabajo
+          </button>
+          <button class="btn-secondary" onclick="showView('manage', document.querySelector('[onclick*=manage]'))">
+            Ver todos los trabajos
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">Trabajos recientes</div>
+        <div id="recent-tasks"></div>
+      </div>
+    </section>
+
+    <!-- ===== NEW TASK ===== -->
+    <section id="view-new-task" class="view-section" style="display:none;">
+      <div class="admin-topbar">
+        <div>
+          <div class="page-title">Nuevo Trabajo</div>
+          <div class="page-sub">Agregar un nuevo trabajo al portafolio</div>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <span class="admin-card-title">Datos del trabajo</span>
+        </div>
+        <div class="admin-card-body">
+          <div class="form-grid">
+
+            <!-- Unidad -->
+            <div class="form-group">
+              <label class="form-label">Unidad *</label>
+              <select id="task-unit" class="form-select"></select>
+            </div>
+
+            <!-- Ícono -->
+            <div class="form-group">
+              <label class="form-label">Ícono (emoji)</label>
+              <input id="task-icon" type="text" class="form-input" placeholder="📊" maxlength="4" />
+            </div>
+
+            <!-- Título -->
+            <div class="form-group full">
+              <label class="form-label">Título del trabajo *</label>
+              <input id="task-title" type="text" class="form-input" placeholder="Ej: Análisis de la ENA con R Studio" />
+            </div>
+
+            <!-- Descripción -->
+            <div class="form-group full">
+              <label class="form-label">Descripción breve</label>
+              <textarea id="task-desc" class="form-textarea" placeholder="Breve descripción del trabajo..."></textarea>
+            </div>
+
+            <!-- Tags -->
+            <div class="form-group full">
+              <label class="form-label">Etiquetas (separadas por coma)</label>
+              <input id="task-tags" type="text" class="form-input" placeholder="R Studio, GIS, Estadística Espacial" />
+            </div>
+
+          </div>
+
+          <!-- Files upload -->
+          <div style="margin-top:1.5rem;">
+            <div class="panel-section-title" style="margin-bottom:1rem;">Archivos</div>
+            <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()"
+              ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragleave="handleDragLeave()">
+              <span class="upload-icon">📁</span>
+              <div class="upload-text">
+                <strong>Haz clic</strong> o arrastra archivos aquí
+              </div>
+              <div class="upload-hint">PDF, R, Rmd, CSV, XLSX, DOCX, ZIP, imágenes y más</div>
+            </div>
+            <input type="file" id="file-input" class="upload-input" multiple onchange="handleFiles(this.files)" />
+            <div id="files-preview" style="margin-top:.8rem;display:flex;flex-direction:column;gap:.5rem;"></div>
+          </div>
+
+          <!-- Links -->
+          <div style="margin-top:1.5rem;">
+            <div class="panel-section-title" style="margin-bottom:1rem;">Enlaces externos</div>
+            <div class="link-row">
+              <input id="link-url"   type="url"  class="form-input" placeholder="https://github.com/..." />
+              <input id="link-label" type="text" class="form-input" placeholder="Etiqueta (ej: GitHub)" style="max-width:160px;" />
+              <button class="btn-add-link" onclick="addLink()">+ Agregar</button>
+            </div>
+            <div id="links-preview" class="links-list"></div>
+          </div>
+
+          <!-- Actions -->
+          <div style="margin-top:2rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+            <button class="btn-submit" id="save-btn" onclick="saveTask()">
+              <span>✓</span> Guardar Trabajo
+              <div class="spinner" id="save-spinner"></div>
+            </button>
+            <button class="btn-secondary" onclick="resetForm()">Limpiar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MANAGE ===== -->
+    <section id="view-manage" class="view-section" style="display:none;">
+      <div class="admin-topbar">
+        <div>
+          <div class="page-title">Gestionar Trabajos</div>
+          <div class="page-sub">Todos los trabajos del portafolio</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn-submit" style="padding:.5rem 1.2rem;font-size:.7rem;" onclick="showView('new-task', document.querySelector('[onclick*=new-task]'))">
+            + Nuevo
+          </button>
+        </div>
+      </div>
+
+      <!-- Unit filter tabs -->
+      <div class="unit-tabs" id="manage-unit-tabs"></div>
+
+      <div class="admin-card">
+        <div class="admin-card-body" style="padding:0;">
+          <table class="tasks-table">
+            <thead>
+              <tr>
+                <th>Trabajo</th>
+                <th>Unidad</th>
+                <th>Archivos</th>
+                <th>Fecha</th>
+                <th style="text-align:right;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tasks-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== UNITS ===== -->
+    <section id="view-units" class="view-section" style="display:none;">
+      <div class="admin-topbar">
+        <div>
+          <div class="page-title">Gestionar Unidades</div>
+          <div class="page-sub">Organiza el portafolio en unidades temáticas</div>
+        </div>
+      </div>
+
+      <div class="admin-card" style="margin-bottom:1.5rem;">
+        <div class="admin-card-header"><span class="admin-card-title">Nueva Unidad</span></div>
+        <div class="admin-card-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Nombre *</label>
+              <input id="unit-name" type="text" class="form-input" placeholder="Ej: Unidad 3" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Descripción</label>
+              <input id="unit-desc" type="text" class="form-input" placeholder="Descripción de la unidad..." />
+            </div>
+          </div>
+          <div style="margin-top:1rem;">
+            <button class="btn-submit" onclick="addUnit()" style="padding:.55rem 1.4rem;font-size:.72rem;">
+              + Crear Unidad
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-header"><span class="admin-card-title">Unidades existentes</span></div>
+        <div class="admin-card-body" id="units-list"></div>
+      </div>
+    </section>
+
+    <!-- ===== SETTINGS ===== -->
+    <section id="view-settings" class="view-section" style="display:none;">
+      <div class="admin-topbar">
+        <div>
+          <div class="page-title">Configuración</div>
+          <div class="page-sub">Ajustes del panel y portafolio</div>
+        </div>
+      </div>
+
+      <div class="admin-card" style="margin-bottom:1.5rem;">
+        <div class="admin-card-header"><span class="admin-card-title">Cambiar contraseña</span></div>
+        <div class="admin-card-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Nueva contraseña</label>
+              <input id="new-pass" type="password" class="form-input" placeholder="Nueva contraseña" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirmar contraseña</label>
+              <input id="confirm-pass" type="password" class="form-input" placeholder="Repite la contraseña" />
+            </div>
+          </div>
+          <div style="margin-top:1rem;">
+            <button class="btn-submit" onclick="changePassword()" style="padding:.55rem 1.4rem;font-size:.72rem;">
+              Guardar contraseña
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-card" style="margin-bottom:1.5rem;">
+        <div class="admin-card-header"><span class="admin-card-title">Exportar / Importar datos</span></div>
+        <div class="admin-card-body">
+          <p style="font-size:.85rem;color:var(--text-mid);margin-bottom:1rem;line-height:1.6;">
+            Exporta todos tus trabajos y unidades a un archivo JSON para hacer copias de seguridad o migrar el portafolio.
+          </p>
+          <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+            <button class="btn-submit" onclick="exportData()" style="padding:.55rem 1.4rem;font-size:.72rem;">
+              ⬇ Exportar JSON
+            </button>
+            <button class="btn-secondary" onclick="document.getElementById('import-input').click()">
+              ⬆ Importar JSON
+            </button>
+            <input type="file" id="import-input" style="display:none;" accept=".json" onchange="importData(this)" />
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-header"><span class="admin-card-title" style="color:var(--red);">Zona de peligro</span></div>
+        <div class="admin-card-body">
+          <p style="font-size:.85rem;color:var(--text-mid);margin-bottom:1rem;">
+            Esta acción elimina todos los trabajos y unidades. No se puede deshacer.
+          </p>
+          <button class="btn-danger" onclick="confirmClearAll()">Borrar todos los datos</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- MODAL CONFIRM -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">¿Confirmar?</div>
+    <div class="modal-body"><p id="modal-body-text"></p></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn-danger" id="modal-confirm-btn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="../js/data.js"></script>
+<script src="../js/panel.js"></script>
+</body>
+</html>

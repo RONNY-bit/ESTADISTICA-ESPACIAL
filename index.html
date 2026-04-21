@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clever Ronny Quenta Chura — Portafolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <canvas id="bg-canvas"></canvas>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <div class="nav-logo">
+      <span class="logo-bracket">[</span>
+      <span class="logo-text">CRQC</span>
+      <span class="logo-bracket">]</span>
+      <span class="logo-dot blink">_</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#about" data-index="00">Sobre mí</a></li>
+      <li><a href="#curso" data-index="01">Curso</a></li>
+      <li><a href="#proyectos" data-index="02">Proyectos</a></li>
+    </ul>
+    <a href="admin/login.html" class="nav-admin-btn" title="Panel Admin">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </a>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero" id="hero">
+    <div class="hero-left">
+      <p class="hero-tag"><span class="tag-dash">----</span> Portafolio Académico 2026</p>
+      <h1 class="hero-name">
+        <span class="name-line">CLEVER</span>
+        <span class="name-line accent-line">RONNY</span>
+        <span class="name-line dim-line">QUENTA CHURA</span>
+      </h1>
+      <p class="hero-course" id="typewriter"></p>
+      <div class="hero-tags">
+        <span class="htag">UNA Puno</span>
+        <span class="htag">Est. Espacial</span>
+        <span class="htag">GIS / R</span>
+        <span class="htag">2026</span>
+      </div>
+      <div class="hero-actions">
+        <a href="#proyectos" class="cta-btn primary"><span>&gt;</span> Ver Trabajos</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-terminal">
+        <div class="terminal-header">
+          <span class="t-dot red"></span>
+          <span class="t-dot yellow"></span>
+          <span class="t-dot green"></span>
+          <span class="t-title">system_info.sh</span>
+        </div>
+        <div class="terminal-body" id="terminal-body">
+          <p><span class="t-prompt">$</span> <span class="t-cmd">whoami</span></p>
+          <p class="t-out">clever.ronny.quenta</p>
+          <p><span class="t-prompt">$</span> <span class="t-cmd">cat universidad.txt</span></p>
+          <p class="t-out">Universidad Nacional del Altiplano</p>
+          <p class="t-out">Facultad: Ing. Estadistica e Informatica</p>
+          <p><span class="t-prompt">$</span> <span class="t-cmd">ls trabajos/</span></p>
+          <p class="t-out" id="terminal-units">cargando...</p>
+          <p><span class="t-prompt">$</span> <span class="t-cursor-line">█</span></p>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-cue">
+      <div class="scroll-arrow"></div>
+      <span>scroll</span>
+    </div>
+  </header>
+
+  <!-- ABOUT -->
+  <section id="about" class="section">
+    <div class="section-inner reveal">
+      <div class="section-header">
+        <span class="section-num">00.</span>
+        <h2 class="section-title">Sobre mí</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="about-grid">
+        <div class="about-text">
+          <p>Hola, soy <strong>Clever Ronny Quenta Chura</strong>, estudiante de la Universidad Nacional del Altiplano de Puno. Este portafolio reúne los trabajos académicos y prácticos desarrollados durante el curso de Estadística Espacial.</p>
+        </div>
+        <div class="about-cards">
+          <div class="info-card">
+            <div class="ic-row"><span class="ic-label">Universidad</span><span class="ic-val">UNA - Puno</span></div>
+            <div class="ic-row"><span class="ic-label">Facultad</span><span class="ic-val">Ing. Estadística e Informática</span></div>
+            <div class="ic-row"><span class="ic-label">Curso</span><span class="ic-val">Estadística Espacial</span></div>
+            <div class="ic-row"><span class="ic-label">Año</span><span class="ic-val">2026</span></div>
+            <div class="ic-row"><span class="ic-label">Sede</span><span class="ic-val">Puno, Perú</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROYECTOS -->
+  <section id="proyectos" class="section">
+    <div class="section-inner">
+      <div class="section-header reveal">
+        <span class="section-num">02.</span>
+        <h2 class="section-title">Proyectos</h2>
+        <div class="section-line"></div>
+      </div>
+      <div id="units-container" class="units-big reveal">
+        <!-- Rendered by JS -->
+        <div class="loading-state">
+          <span class="t-prompt">$</span> <span class="t-cmd">loading trabajos...</span>
+          <span class="blink">█</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-logo">[CRQC]</span>
+    <span class="footer-sep"> · </span>
+    <span>Clever Ronny Quenta Chura</span>
+    <span class="footer-sep"> · </span>
+    <span>UNA Puno · 2026</span>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/portfolio.js"></script>
+  <script src="js/canvas.js"></script>
+</body>
+</html>

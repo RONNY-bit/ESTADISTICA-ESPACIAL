@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login — CRQC Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,600;0,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body class="login-page">
+
+  <canvas id="bg-canvas"></canvas>
+
+  <div class="login-box">
+    <div class="login-logo">[CRQC] <span>Admin</span></div>
+    <p class="login-subtitle">Panel de Administración · Portafolio Académico</p>
+
+    <div class="login-form">
+      <div>
+        <div class="field-label">Usuario</div>
+        <input id="inp-user" type="text" class="field-input" placeholder="admin" autocomplete="username" />
+      </div>
+      <div>
+        <div class="field-label">Contraseña</div>
+        <input id="inp-pass" type="password" class="field-input" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <div class="login-error" id="login-error">Usuario o contraseña incorrectos.</div>
+      <button class="login-btn" id="login-btn" onclick="doLogin()">Ingresar →</button>
+    </div>
+
+    <a href="../index.html" class="login-back">← Volver al portafolio</a>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/canvas.js"></script>
+  <script>
+    // Check if already logged in
+    if (DB.isLoggedIn()) window.location.href = 'panel.html';
+
+    // Enter key
+    document.querySelectorAll('.field-input').forEach(inp => {
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+    });
+
+    function doLogin() {
+      const user = document.getElementById('inp-user').value.trim();
+      const pass = document.getElementById('inp-pass').value;
+      const errEl = document.getElementById('login-error');
+      const btn   = document.getElementById('login-btn');
+
+      if (!user || !pass) {
+        errEl.textContent = 'Por favor completa todos los campos.';
+        errEl.classList.add('show'); return;
+      }
+
+      btn.textContent = 'Verificando...';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        if (DB.checkLogin(user, pass)) {
+          DB.setSession();
+          window.location.href = 'panel.html';
+        } else {
+          errEl.textContent = 'Usuario o contraseña incorrectos.';
+          errEl.classList.add('show');
+          btn.textContent = 'Ingresar →';
+          btn.disabled = false;
+          document.getElementById('inp-pass').value = '';
+          document.getElementById('inp-pass').focus();
+        }
+      }, 400);
+    }
+  </script>
+</body>
+</html>
